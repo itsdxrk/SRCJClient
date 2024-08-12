@@ -223,12 +223,12 @@ public class SRCApi {
     public ArrayList<String> getWRTime(String gameId, String categoryId, ArrayList<VariablesValuesIDs> varValIds) {
         ArrayList<String> paralist = new ArrayList<>();
         String params = "{\"params\":{\"categoryId\":\"" + categoryId + "\",\"gameId\":\"" + gameId + "\",\"obsolete\":0,\"platformIds\":[],\"regionIds\":[],\"verified\":1,\"values\":[";
+
         for (VariablesValuesIDs varValId : varValIds) {
-            System.out.println(varValId.getVarId());
-            System.out.println(varValId.getValueId());
             String currentParams = "{\"variableId\":\"" + varValId.getVarId() + "\",\"valueIds\":[\"" + varValId.getValueId() + "\"]}";
             paralist.add(currentParams);
         }
+        
         String conjoinedParams = String.join(",", paralist);
         params = params + conjoinedParams + "],\"video\":0},\"page\":1}";
         params = Base64.getUrlEncoder().withoutPadding().encodeToString(params.getBytes()).toString();
