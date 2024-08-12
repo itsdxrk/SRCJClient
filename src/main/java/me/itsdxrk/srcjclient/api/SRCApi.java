@@ -172,6 +172,8 @@ public class SRCApi {
                 for (int i = 0; i < numOfVars; i++) {
                     JsonObject currentVar = jsonVarList.get(i).getAsJsonObject();
                     Boolean isSubcat = currentVar.get("isSubcategory").getAsBoolean();
+//                    Integer varCatScope = currentVar.get("categoryScope").getAsInt();
+//                    System.out.println(currentVar.get("name").getAsString() + " " + varCatScope);
                     if (isSubcat) {
                         Integer varCatScope = currentVar.get("categoryScope").getAsInt();
                         if (varCatScope == 1) {
@@ -183,6 +185,9 @@ public class SRCApi {
                                 varIdList.add(varId);
                             }
                         }
+                    }
+                    else {
+                        System.out.println(currentVar.get("name").getAsString());
                     }
                 }
                 JsonArray jsonValueList = jsonObj.get("values").getAsJsonArray();
@@ -219,8 +224,10 @@ public class SRCApi {
         ArrayList<String> paralist = new ArrayList<>();
         String params = "{\"params\":{\"categoryId\":\"" + categoryId + "\",\"gameId\":\"" + gameId + "\",\"obsolete\":0,\"platformIds\":[],\"regionIds\":[],\"verified\":1,\"values\":[";
         for (VariablesValuesIDs varValId : varValIds) {
-            String currentparams = "{\"variableId\":\"" + varValId.getVarId() + "\",\"valueIds\":[\"" + varValId.getValueId() + "\"]}";
-            paralist.add(currentparams);
+            System.out.println(varValId.getVarId());
+            System.out.println(varValId.getValueId());
+            String currentParams = "{\"variableId\":\"" + varValId.getVarId() + "\",\"valueIds\":[\"" + varValId.getValueId() + "\"]}";
+            paralist.add(currentParams);
         }
         String conjoinedParams = String.join(",", paralist);
         params = params + conjoinedParams + "],\"video\":0},\"page\":1}";
@@ -256,6 +263,39 @@ public class SRCApi {
                 wrInfo.add(realTime);
 
                 return wrInfo;
+            } else {
+                JOptionPane.showMessageDialog(null, "Failed with code " + conn.getResponseCode());
+                return null;
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error, " + e);
+        }
+        return null;
+    }
+
+    public URL getWRLink(String runId) {
+        String params = "{\"params\":{\"runId\":\"" + runId + "\"}}";
+        params = Base64.getUrlEncoder().withoutPadding().encodeToString(params.getBytes());
+        try {
+            URL url = new URL(baseurl + "GetRun?_r=" + params);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("User-Agent", "SRCJ-Client");
+            if (conn.getResponseCode() == 200) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+                conn.disconnect();
+
+                JsonObject jsonObj = JsonParser.parseString(String.valueOf(response)).getAsJsonObject();
+                String gameAbbreviation = jsonObj.get("game").getAsJsonObject().get("url").getAsString();
+
+                return new URL("https://speedrun.com/" + gameAbbreviation + "/runs/" + runId);
             } else {
                 JOptionPane.showMessageDialog(null, "Failed with code " + conn.getResponseCode());
                 return null;
@@ -368,15 +408,20 @@ public class SRCApi {
                 conn.disconnect();
 
                 JsonObject jsonObj = JsonParser.parseString(String.valueOf(response)).getAsJsonObject();
-                String userPfp = jsonObj.get("data").getAsJsonObject().get("assets").getAsJsonObject()
-                        .get("image").getAsString();
-                return ImageIO.read(new URL(userPfp));
+                JsonElement userPfp = jsonObj.get("data").getAsJsonObject().get("assets").getAsJsonObject()
+                        .get("image").getAsJsonObject().get("uri");
+                if (!(userPfp.isJsonNull())) {
+                    return ImageIO.read(new URL("https://www.speedrun.com/static/user/" + userId + "/image"));
+                }
+                else {
+                    return null;
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Failed with code " + conn.getResponseCode());
                 return null;
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error, " + e);
+            JOptionPane.showMessageDialog(null, "Error getting profile picture: " + e);
         }
         return null;
     }
