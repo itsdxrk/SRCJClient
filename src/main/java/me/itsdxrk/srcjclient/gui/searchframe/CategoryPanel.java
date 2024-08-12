@@ -47,7 +47,8 @@ public class CategoryPanel extends JPanel {
                 if (gameList.getSelectedValue() != null) {
                     JLabel imgLabel = GamePanel.imgLabel;
                     JLabel gameTitleLabel = GamePanel.gameTitleLabel;
-                    JButton modListButton = GamePanel.modListButton;
+                    JButton modListButton = GamePanel.srcRunLinkButton;
+                    wrInfoButton.setEnabled(false);
                     GameID item = gameList.getSelectedValue();
                     String id = item.gameId;
                     BufferedImage gameImage;
@@ -68,6 +69,7 @@ public class CategoryPanel extends JPanel {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (catList.getSelectedValue() != null) {
+                    wrInfoButton.setEnabled(false);
                     ArrayList<JList> listOfSubcatLists = SubcategoryPanel.listOfSubcatLists;
 //                    wrInfoButton.setEnabled(false);
                     for (JList list : listOfSubcatLists) {
