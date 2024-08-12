@@ -44,6 +44,19 @@ public class WRGUI extends JFrame {
                 0,
                 0
         ));
+        mainPanel.add(new RunInfoPanel(), new GridBagConstraints(
+                1,
+                0,
+                1,
+                1,
+                1,
+                0,
+                10,
+                1,
+                new Insets(0, 0, 0, 0),
+                0,
+                0
+        ));
         setContentPane(mainPanel);
         setTitle("World Record Information");
         this.addWindowListener(new WindowAdapter() {
